@@ -1,4 +1,5 @@
 object dmSpinnerDemo: TdmSpinnerDemo
+  OnCreate = DataModuleCreate
   Height = 480
   Width = 640
   object fdtblArchers: TFDMemTable

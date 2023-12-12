@@ -13,9 +13,12 @@ type
     btnGetData: TButton;
     lvArchers: TListView;
     Spinner: TAniIndicator;
+    lblErrorText: TLabel;
     procedure btnGetDataClick(Sender: TObject);
   private
     procedure FillListView;
+    procedure HandleDataException(aMsg: String);
+    procedure HandleDataDone;
     { Private declarations }
   public
     { Public declarations }
@@ -28,15 +31,66 @@ implementation
 
 {$R *.fmx}
 uses
-  uDataModule;
+  uDataModule, system.Threading, uAnimationForm;
+
+
+{
+procedure TForm1.btnGetDataClick(Sender: TObject);
+begin
+
+//Tehcnically this starts the spinner, but it's not running
+//because the GetData and FillListView is running
+  Spinner.Enabled := True;
+  dmSpinnerDemo.GetData;
+  FillListView;
+  Spinner.Enabled := False;
+end;
+}
+
+
 
 procedure TForm1.btnGetDataClick(Sender: TObject);
 begin
-//  Spinner.Enabled := True;
-  dmSpinnerDemo.GetData;
-  FillListView;
+  //Spinner.Enabled := True;
+  //But let's make a nicer UI
+  frmSpinner.StartSpinner(self, 'Retreiving Data', 'Please wait');
+
+ TTask.run(
+      procedure
+      begin
+        try
+         dmSpinnerDemo.GetData;
+         TThread.Queue(TThread.CurrentThread, HandleDataDone );
+        except on E:Exception do
+          begin
+            var lMsg: string := E.Message;
+            TThread.Queue(TThread.CurrentThread, procedure
+                                                 begin
+                                                   HandleDataException(lMsg)
+                                                 end);
+          end;
+        end;
+      end
+      );
+
   //Spinner.Enabled := False;
 end;
+
+
+procedure TForm1.HandleDataDone;
+begin
+  FillListView;
+  frmSpinner.StopSpinner;
+end;
+
+procedure TForm1.HandleDataException(aMsg : String);
+begin
+   lblErrorText.Text := aMsg;
+   frmSpinner.StopSpinner;
+end;
+
+
+
 
 procedure TForm1.FillListView;
 begin
