@@ -35,4 +35,14 @@ object Form1: TForm1
     Size.PlatformDefault = False
     TabOrder = 1
   end
+  object lblErrorText: TLabel
+    Position.X = 56.000000000000000000
+    Position.Y = 368.000000000000000000
+    Size.Width = 249.000000000000000000
+    Size.Height = 49.000000000000000000
+    Size.PlatformDefault = False
+    TextSettings.Trimming = None
+    Text = 'No error'
+    TabOrder = 2
+  end
 end
